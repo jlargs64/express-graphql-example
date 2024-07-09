@@ -7,7 +7,7 @@ const logger = pino({
       ? {
           target: 'pino-roll',
           options: {
-            file: 'my-api.log',
+            file: 'logs/api.log',
             frequency: 'daily',
             size: '10m',
             mkdir: true,

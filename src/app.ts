@@ -31,6 +31,18 @@ app.get('/', (req: Request, res: Response) => {
   res.json({ message: 'API is running' });
 });
 
+app.get('/say-hi', (req: Request, res: Response) => {
+  const name = req.query.name;
+  let message = '';
+  if (name == null || name?.length == 0) {
+    message = "Hi! I don't know you!";
+  } else {
+    message = `Hi ${name}!`;
+  }
+  logger.debug(`I said: ${message}`);
+  return res.json({ message: message });
+});
+
 app.get('/health', (req: Request, res: Response) => {
   res.status(200).send('OK');
 });
