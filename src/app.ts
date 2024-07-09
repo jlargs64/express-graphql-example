@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import express, { Express, NextFunction, Request, Response } from 'express';
 import helmet from 'helmet';
 import http from 'http';
+import { connectToMongoDB } from './db/mongoose';
 import { resolvers } from './resolvers';
 import { typeDefs } from './schema';
 import logger from './utils/logger';
@@ -18,7 +19,7 @@ const app: Express = express();
 const httpServer = http.createServer(app);
 const port = process.env.PORT || 3000;
 const env = process.env.NODE_ENV || 'dev';
-const isProduction = process.env.NODE_ENV === 'production';
+const isProduction = env === 'production';
 
 // graphql
 interface MyContext {
@@ -26,6 +27,15 @@ interface MyContext {
 }
 
 async function startApolloServer() {
+  // Connect to MongoDB
+  try {
+    await connectToMongoDB(); // This will not throw an error if MONGODB_URI is not defined
+  } catch (error) {
+    logger.error('Failed to connect to MongoDB:', error);
+    // Optionally, you can choose to exit here if MongoDB is critical for your app
+    // process.exit(1);
+  }
+
   const server = new ApolloServer<MyContext>({
     typeDefs,
     resolvers,
@@ -82,6 +92,7 @@ app.get('/health', (req: Request, res: Response) => {
   res.status(200).send('OK');
 });
 
+// Start servers
 startApolloServer().catch((error) => {
   logger.error('Failed to start server', error);
 });
